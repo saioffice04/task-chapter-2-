@@ -1,0 +1,44 @@
+.a{
+    margin-left: 20%;
+    margin-right: 20%;
+}
+.d1{
+    height: 3px;
+    background-color:#053eb0;
+    margin-left: 15%;
+    margin-right: 15%
+}
+.h1{
+    color:#053eb0;
+   font-family: Arial, Helvetica, sans-serif;
+    margin-left: 15%;
+    margin-right: 15%;
+}
+.d2{
+    height: 1px;
+    background-color: #053eb0;
+    margin-left: 15%;
+    margin-right: 15%
+}
+.t1{
+    border-collapse: collapse;
+}
+.d3{
+    height: 15px;
+    
+    background-color: rgb(233, 233, 237);
+    font-size: small;
+}
+.d4{
+    height: 200px;
+    background-color: rgb(233, 233, 237);
+    font-size: small;
+}
+u{
+    color: rgb(10, 10, 42);
+}
+.h2{
+    font-family: Arial, Helvetica, sans-serif;
+    margin-left: 15%;
+    margin-right: 15%;
+}

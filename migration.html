@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="migration.css">
+</head>
+<body>
+    <div class=" d1"></div>
+    <h1 class="h1"><b>Chapter 2. Preparing for Migration</b></h1>
+    <p class="a">This book provides information for migration to the NetView V6R3 program. Before beginning your installation, read the NetView program directory.</p>
+    <b class="a">Other sources of information</b>
+        <ul class="a">
+           	 <li> For detailed information about the steps required to install the NetView program, refer to <i>IBM Z NetView Installation: Getting Started.</i></li>
+            	 <li>If you are installing the NetView program on the same LPAR as an existing NetView program, see "Running Multiple NetView Programs in the Same LPAR" in<i> IBM Z NetView Installation:<b> Configuring</b> Additional Components</i> while completing the steps in this book.</li>
+        </ul>
+        <b class="h1">Overview</b>
+        <div class="d2"></div>
+        <p class="a">Migration consists of:</p>
+        <ol class="a" type="1">
+            <li>	Installing the NetView program from distribution media using SMP/E with the help of the NetView program directory</li>
+            <li>	Making necessary additional preparations to your z/OS system for the current NetView release</li>
+            <li>	Modifying your existing NetView installation to incorporate changes that were made to the current NetView release</li>
+            <li>	Verifying the migration by testing the basic functions of the NetView program</li>
+        </ol>
+        <p class="a">This book is designed to guide you through the migration and verification of the NetView program in a minimum amount of time.</p>
+        <b class="h1">Hardware and Software Requirements</b>
+        <div class="d2"></div>
+        <p class="a">Refer to the NetView program directory for detailed information and an inclusive list of the hardware and software requirements for installation.</p>
+        <b class="h1">Installation Package</b>
+        <div class="d2"></div>
+        <p class="a">For detailed information about the installation package contents, refer to the NetView program directory.<br><br>
+             Workstation-based NetView code is provided in 2 formats:</p>
+             <ul class="a">
+                <li>	DVD</li>
+                <li>	Electronic internet delivered .pax package</li>
+             </ul>
+             <p class="a">The Z NetView Enterprise Management Agent (NetView agent) is packaged as a separate FMID that is SMP/E installable. For more information about installing the NetView agent, see the Program Directory (GI11-9446).</p>
+             <p class="a">The GDPS Continuous Availability solution functions were available as a component starting with the NetView for z/OS V6R1 product. The NetView V6R2 product required the NetView Monitoring for GDPS V6R2 product to authorize using the GDPS Continuous Availability solution functions. Starting with NetView for z/OS V6R2M1, the GDPS Continuous Availability solution functions moved from the NetView V6R2 product to the NetView Monitoring for GDPS V6R2M1 product, which is renamed to IBM Z NetView for Continuous Availability from V6R3.</p>
+             <b class="h1">Installing the New NetView Release While Running an Earlier NetView</b><br><b class="h1"> Release</b>
+             <div class="d2"></div>
+             <p class="a">If you want to keep running your installed version of the NetView program as your production system while you plan for and migrate to V6R3, the following actions can facilitate your migration:</p>
+             <ul class="a">
+                <li>If you ordered this package as a Custom-Built Product Delivery Offering (CBPDO, 5751-CS3), you must install the NetView program V6R3 files into separate SMP global and target zones from those used for your existing NetView release.</li>
+                <li>	Unless you plan to run two full NetView programs concurrently, it is a good idea to delete the old NetView release when your migration is completed.</li>
+                <li>	The modules that are copied into SCNMLPA1 during NetView program V6R3 installation are backward- compatible with the following versions of the NetView product:<br><br>
+                    –	Tivoli NetView for z/OS Version 6 Release 2 (requires PTF UA97461)<br>
+                    –	Tivoli NetView for z/OS Version 6 Release 1 (requires PTF UA70457 and UA97460)<br><br>
+                    The modules in the SCNMLPA1 data set are backward-compatible with previous NetView releases. Therefore, it is recommended to run with the copy of these modules from the current release to keep the SCNMLPA1 data set up-to-date. Delete the old copy of the SCNMLPA1 data set and place the NetView program V6R3 copy of the SCNMLPA1 data set in the LPALST member. The change to the LPALST member takes effect the next time your z/OS system is restarted.<br><br>
+                    Note, PTFs UA97461 and UA97460 change the format of Canzlog such that it can be configured to be dynamic in size. All future updates to Canzlog require these compatibility PTFs be applied.
+                    </li>
+                <li>	The ISTIECCE load module in NETVIEW.V6R3M0.SCNMLNK1 is not compatible with the ISTIECCE module from NetView V1R4. Be sure that the correct level of this module is included in the VTAMLIB DD statement in your VTAM start procedure. Using an earlier version of the ISTIECCE module or not having this module in the correct library can result in status monitor initialization failure or other unpredictable results.</li>
+                <li>	Decide how you are going to access the LNKLST modules for the previous (existing) NetView release while migrating to the NetView program V6R3 program. You can use the STEPLIB data set concatenation to access the NetView LNKLST libraries for both releases while you are migrating to the new release, or you can use a PROGxx PARMLIB member to access the NetView program V6R3 libraries while using the STEPLIB data set concatenation for the libraries for the NetView program from which you are migrating.</li>
+             </ul>
+                <p class="a">Support is provided for running two releases of the NetView program, NetView management console, and RODM on one production system. For more information about running two NetView releases on the same system, see "Running Multiple NetView Programs in the Same LPAR" in <i>IBM Z NetView Installation:<b> Configuring</b> Additional Components.</i></p>
+               <b class="h1">Migration Process</b>
+               <div class="d2"></div>
+               <p class="a">Follow the steps in the process outlined in subsequent sections to migrate to the current release of the NetView program. These steps are a high-level overview of the installation process used for new users, and serve as a checklist to ensure that the environment is prepared and that the NetView program is installed properly. The environments that are prepared for the current NetView release include:</p>
+               <ul class="a">
+                <li>	MVS system</li>
+                <li>	UNIX System Services</li>
+               </ul>
+               <p class="a">After preparing these environments for the NetView program, the migration steps are grouped in the following way:</p>
+               <ul class="a">
+                <li>	Base NetView functions</li>
+                <li>Graphical NetView functions</li>
+                <li>	Advanced NetView configuration</li>
+               </ul>
+               <p class="a">Before you begin the migration process, make a backup copy of your NetView libraries.</p>
+               <b class="h1">
+                Preparing the MVS System
+                </b>
+                <div class="d2"></div>
+                <p class="a">The following steps are required to update MVS for the NetView V6R3 program. These are the same basic steps required for a new installation. For additional information about these steps, refer to<i> IBM Z NetView Installation: Getting Started.</i> </p>
+                <p class="a">Refer to Table 8 on page 7 to update members in SYS1.PARMLIB.</p>
+                <table class="a t1" border="1px">
+                    <tr>
+                        <td colspan="2"><em>Table 8. SYS1.PARMLIB Members</em></td>
+                    </tr>
+                    <tr>
+                        <td><b>Member Name</b></td>
+                        <td><b>Suggested Updates</b></td>
+                    </tr>
+                     <tr>
+                     <td ><p padding="top">COUPLExx</p></td>
+                         <td>Add the following DATA statement to identify the automatic restart manager (ARM) couple<br> data to XCF:<br>
+                        <div class="a d3">DATA TYPE(ARM) PCOUPLE(primary-dsname) ACOUPLE(alternate-dsname)</div><br>
+                         Initialize the primary and alternate ARM couple data sets after you create them.<br>
+                         If you are adding this system to a sysplex to enable the NetView program to use XCF<br> Services, see <em>z/OS MVS Setting Up a Sysplex</em> .
+                         </td>
+                     </tr>
+                     <tr>
+                     <td>PROGxx or<br> IEAAPFxx</td>
+                     <td>If these are not already authorized, authorize all the libraries included in the STEPLIB,<br> VTAMLIB, and NCPLOAD <br>concatenations in your VTAM and NetView start procedures:<br>
+                         <ul>
+                <li>VTAM start procedure: CNMSJ008 (CNMNET)</li>
+                <li>NetView start procedure: CNMSJ009 (CNMPROC)</li>
+                <li>NetView subsystem interface (SSI) start procedure: CNMSJ010 (CNMPSSI)</li>
+                <li>RODM start procedure: EKGXRODM</li>
+                <li>GMFHS start procedure: CNMSJH10 (CNMGMFHS)</li>
+                <li>Event/Automation Service start procedure: IHSAEVNT</li>
+            </ul><br><br>
+                         Verify that the following NetView libraries are authorized:
+                         <ul>
+                <li>NETVIEW.V6R3M0.SCNMLNK1</li>
+                <li>NETVIEW.V6R3M0.SCNMLPA1</li>
+                <li>NETVIEW.V6R3M0.CNMLINK</li>
+                <li>NETVIEW.V6R3M0.SCNMLNKN</li>
+                <li>NETVIEW.V6R3M0.SAQNLINK</li>
+            </ul>
+            <p>If you are installing the Japanese NetView V6R3 program, authorize the<br>SCNMMJPN data set. This data set is in the STEPLIB of CNMPROC.</p>
+            <p>If you plan to use the Z NetView Enterprise Management Agent, authorize the<br> following additional libraries:</p>
+                         
+                         <ul>
+                <li>RKANMOD</li>
+                <li>RKANMODL</li>
+                <li>RKANMODU</li>
+                <li>Any runtime libraries that are concatenated in the STEPLIB DDNAME and in the RKANMODL DDNAME of the IBMNA and IBMDS started tasks</li>
+            </ul>
+            
+                         
+                     </table>
+                     <table class="a t1" border="1px">
+                        <tr>
+                            <td colspan="2"><em>Table 8. SYS1.PARMLIB Members (continued)</em></td>
+                        </tr>
+                        <tr>
+                            <td><b>Member Name</b></td>
+                            <td><b>Suggested Updates</b></td>
+                        </tr>
+                        <tr>
+                            <td>PROGxx or IEAAPFxx
+                                (continued)
+                                </td>
+                                <td>For the REXX environment, verify that one of the following libraries is APF- authorized:<br>
+                                <ul>
+                                    <li>	REXX/370 runtime library: SEAGLPA</li>
+                                    <li>	REXX/370 runtime library: SEAGLPA</li>
+                                </ul>
+                                <p >If you plan to use the Web Services Gateway, verify that the XML toolkit runtime library (SIXMLOD1) is APF-authorized.</p>
+                                <p><b>Usage note:</b> You can use the SETPROG APF command to dynamically update the list of APF-authorized libraries.</p>
+                                <p>Beginning with V6R2, the Web Services Gateway no longer requires the GSKit runtime library (SIEALNKE).</p>
+                                <p>The following data sets are no longer used by NetView V6R3 and can be removed if they are not being used for other reasons:</p>
+                                <ul>
+                                   <li>	SCNMUXLK</li>
+<li>	SEKGLNK1</li>
+<li>	SEKGMOD1</li>
+<li>SEKGMOD2</li>
+<li>	SEKGSMP1</li>
+<li>	SEZLLINK</li>
+
+                                </ul>
+                                </td>
+                        </tr>
+                        <tr>
+                            <td>IEASYMxx</td>
+                            <td><p>Add a SYSDEF statement to identify user-defined system symbols for the NetView program, including the TCP/IP application name, RODM name, and network ID.</p>
+                            <p>Setting these system symbols can alleviate modification of many of the NetView initialization members unless some default parameter such as a TCP/IP port needs to be changed.</p>
+                            <p>For example, you can define the following system symbols (these are the default NetView symbol names):</p>
+                            <div class="d3">SYSDEF SYMDEF(&CNMTCPN='tcpip_name') <br>SYSDEF SYMDEF(&CNMRODM='rodm_name')<br>
+                                SYSDEF SYMDEF(&CNMNETID='network_id')
+                                </div>
+                                <p>The initialization members that use these system symbols are shown in Table 10 on page 13.</p><br>
+                                <p>If you use sample A01APPLS (CNMS0013), you can set the &CNMDOMN symbol to the NetView domain name. If you do not set this symbol, replace &CNMDOMN with the NetView domain name.</p>
+                                <p>The Z NetView Enterprise Management Agent also supports system symbols. If you need to make updates, see the<i> IBM Z NetView Installation: <b>Configuring</b> the NetView Enterprise Management Agent.</i></p>
+
+                            </td>
+
+                        </tr>
+
+                     </table>
+                     <table class="a t1" border="1px">
+                        <tr>
+                            <td colspan="2"><em>Table 8. SYS1.PARMLIB Members (continued)</em></td>
+                        </tr>
+                        <tr>
+                            <td><b>Member Name</b></td>
+                            <td><b>Suggested Updates</b></td>
+                        </tr>
+                        <tr>
+                            <td>IEASYSxx</td>
+                            <td><p>Specify the maximum number of ASIDs and replacement ASIDs for the NetView program. Beginning with V5R3, there are one or two additional address spaces per LPAR for the NetView agent. You will have two if you run a z/OS Tivoli Enterprise Monitoring Server.</p>
+                                <ul>
+                                    <li>	Set MAXUSER to the number of ASIDs you want available at any one time.</li>
+                                    <li>	Set RSVNONR to the value you want for replacement values.</li>
+                                </ul>
+                                <p>The total of the values of MAXUSER, RSVNONR, and RSVSTRT, cannot exceed 32767. If you want a low MAXUSER value, be sure to provide a reasonably large value for RSVNONR.</p>
+                                <p>Add a COUPLE system parameter to identify the COUPLExx member containing the DATA statements for the automatic restart manager (ARM) or the workload manager (WLM).</p>
+                                <p>Add PLEXCFG=MONOPLEX or PLEXCFG=MULTISYSTEM for ARM or WLM support.</p>
+                                <p>If you are adding this system to a sysplex to enable the NetView program to use XCF Services, see<i> z/OS MVS Setting Up a Sysplex .</i></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>IEFSSNxx</td>
+                            <td>
+                                <p>Verify that the NetView and RODM subsystem names are defined:</p>
+                                <ul>
+                                    <li>	RODM subsystem name (EKGX is the default)</li>
+                                    <li>	4-character NetView subsystem name (CNMP is the default)</li>
+                                </ul>
+                                <div class="d3"><p>SUBSYS SUBNAME(CNMP) INITRTN(DSI4LSIT)</p></div>
+                                <p>However, do not specify an INITRTN value for NetView subsystems that are intended to run with a NetView release prior to V6R1.</p>
+                                <p>Consider the following conditions before deciding where to place the NetView subsystem name in IEFSSNxx</p>
+                                <ul>
+                                    <li>	If you place the NetView subsystem name after other subsystem names in the IEFSSNxx member, all MVS messages and commands that are received by the NetView subsystem are affected by the changes made by the other subsystems that are listed before the NetView subsystem.</li>
+                                    <li>•	For z/OS Version 1.12 or later, if you are defining more than one NetView subsystem (SSI) in the IEFSSNxx member, the first NetView subsystem must come before the BEGINPARALLEL keyword. Any remaining NetView subsystems can be defined following the BEGINPARALLEL keyword. If you are defining only one NetView subsystem, the NetView subsystem can be placed before or after the BEGINPARALLEL keyword in the IEFSSNxx member.</li>
+                                </ul>
+                                <p>For more information about IEFSSNxx that talks about INITPARM, see<li> Installation: Getting Started.</li></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>IKJTSOxx</td>
+                            <td><p>If you plan to use the NetView agent, add the KPDDSCO command in the authorized program (AUTHPGM) section:</p>
+                                <div class="d3">AUTHPGM NAMES(KPDDSCO,pgm2,...)</div>
+                                <p>IBM Tivoli Monitoring components require the KPDDSCO command to be authorized in the IKJTSOxx member for persistent data store processing.</p>
+                            </td>
+                        </tr>
+                     </table><br>
+                     <table class=" a t1" border="1px">
+                        <tr>
+                            <td colspan="2"><em>Table 8. SYS1.PARMLIB Members (continued)</em></td>
+                        </tr>
+                        <tr>
+                            <td><b>Member Name</b></td>
+                            <td><b>Suggested Updates</b></td>
+                        </tr>
+                        <tr>
+                            <td><p>PROGxx or<br> LNKLSTxx</p></td>
+                            <td><p>If you are using LINKLST instead of a STEPLIB DD statement in any of your NetView JCL members (for example, your startup procedure), update your PROGxx member in the SYS1.PARMLIB data set to include the following program libraries as extensions to the SYS1.LINKLIB data set:</p>
+                            <ul>
+                                <li>NETVIEW.V6R3M0.CNMLINK</li>
+<li>NETVIEW.V6R3M0.SCNMLNKN</li>
+<li>	NETVIEW.V6R3M0.SAQNLINK</li>
+
+                            </ul>
+                            <p>Note that the SCNMLNKN data set is used for RODM trace, MVS command exit, and DSIPHONE subroutine (which is used by CMDSERV command server and by the UNIX and TSO command servers). The SCNMLNKN data set is not referenced in the NetView program samples; JCL for those samples must specify the SCNMLNKN data set on the STEPLIB DD statement if it is not included in the PROGxx member.</p>
+                            <p>The following data sets are no longer used by NetView V6R3 and can be removed if they are not being used for other reasons:</p>
+                            <ul>
+                                <li>SCNMUXLK</li>
+<li>	SEKGLNK1</li>
+<li>	SEKGMOD1</li>
+<li>SEKGMOD2</li>
+<li>SEKGSMP1</li>
+<li>	SEZLLINK</li>
+
+                            </ul>
+                            <p><b>Note: </b> you are using the Take Action security solution for z/OS products which use the Tivoli Management Services infrastructure, coding the NetView CNMLINK data set in LNKLSTxx is not sufficient. You must also concatenate in the NetView CNMLINK data set under the RKANMODL DD statement in the Tivoli Enterprise Monitoring Server or the z/OS agent. See the IBM Z NetView Installation:<i><b>Configuring</b> the NetView Enterprise Management Agent </i> information about the Take Action security.</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                PROGxx exit routines
+                            </td>
+                            <td>
+                                <ul>
+                                    <li>	If you plan to use the CNMSMF3E sample as an IEFACTRT exit routine, associate the CNMSMF3E sample to the IEFACTRT exit by adding the following statement to your PROGxx member:
+                                        <div class="d3"><p>EXIT ADD EXITNAME(SYS.IEFACTRT) MODNAME(CNMSMF3E)</p></div>
+                                        More than one exit routine can be defined for the IEFACTRT exit, so there might be more than one EXIT statement for the SYS.IEFACTRT exit in your PROGxx member.
+                                    </li>
+                                    <li>	To enable NetView subsystem preinitialization messages to be written to the Canzlog log, add this statement to the PROGxx member:
+                                        <div class="d3"><p>EXIT ADD EXITNAME(CNZ_MSGTOSYSLOG) MODNAME(DSI4LCUI)</p></div>
+                                        <p>The preinitialization messages are logged with an ASTYPE value of E.</p>
+                                    </li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>LOADxx</td>
+                            <td>If necessary, add an IEASYM statement to identify the IEASYMxx member to use for<b> user-defined </b> symbols.</td>
+                        </tr>
+                     </table><br>
+                     <table class="a t1" border="1px">
+                        <tr>
+                            <td colspan="2"><em>Table 8. SYS1.PARMLIB Members (continued)</em></td>
+                        </tr>
+                        <tr>
+                            <td><b>Member Name</b></td>
+                            <td><b>Suggested Updates</b></td>
+                        </tr>
+                        <tr>
+                            <td>LPALSTxx</td>
+                            <td><p>Include the SCNMLPA1 data set. If you are running a previous NetView release on the same system as NetView V6R3, add the V6R3 SCNMLPA1 to LPALSTxx. Ensure that LPALSTxx does not include any previous NetView SCNMLPA1.</p>
+                            <p>Starting with V6R2, it is no longer necessary to load the CNMCSRVP module into your LPALSTxx. If you have the CNMCSRVP module in the LPALSTxx member, remove it.</p>
+                            <p>Data sets specified in the LPALSTxx member no longer need to be APF-authorized or cataloged in the system master catalog. If the SCNMLPA1 data set is cataloged in a user catalog, specify (in parenthesis immediately following the data set name) the 1- to 6-character VOLSER of the pack on which the SCNMLPA1 data set resides, for example:</p>
+                            <div class="d3"><p>NETVIEW.V6R3M0.SCNMLPA1(volser)</p></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>MPFLSTxx</td>
+                            <td><p>If you plan to use the MVS command exit DSIRVCEX for command revision, add the following statement to your MPFLSTxx member in SYS1.PARMLIB:</p>
+                            <div class="d3">.CMD USEREXIT(DSIRVCEX)</div>
+                            <p>For more information about the NetView command revision function, refer to <i>IBM Z NetView Automation Guide.</i></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>SCHEDxx</td>
+                            <td><p>NetView V6R2 and later requires z/OS 1.12 or later, which includes the program properties for the NetView modules. If you have the following existing entries in SCHEDxx, remove them:</p>
+                            <ul>
+                                <li>	The NetView program without the hardware monitor (NPDA), PGM=DSIMNT in your NetView JCL PROC:<br>
+                                    <div class="d3">PPT PGMNAME(DSIMNT) NOSWAP KEY(8)</div>
+
+                                </li>
+                                <li>	The NetView program with the hardware monitor (NPDA), PGM=BNJLINTX in your NetView JCL PROC:<br>
+                                <div class="d3">PPT PGMNAME(BNJLINTX) NOSWAP KEY(8)</div>
+                                </li>
+                                <li>	The RODM program, PGM=EKGTC000 in your RODM JCL PROC:<br>
+                                <div class="d3">PPT PGMNAME(EKGTC000) NOSWAP NOCANCEL</div>
+                                </li>
+                                <li>	The NetView GMFHS program, PGM=DUIFT000 in your GMFHS JCL PROC:<br>
+                                <div class="d3">PPT PGMNAME(DUIFT000) NOSWAP KEY(8)</div>
+                                </li>
+                            </ul>
+                            </td>
+                        </tr>
+
+                     </table>
+                     <table class="a t1" border="1px">
+                        <tr>
+                            <td colspan="2"><em>Table 8. SYS1.PARMLIB Members (continued)</em></td>
+                        </tr>
+                        <tr>
+                            <td><b>Member Name</b></td>
+                            <td><b>Suggested Updates</b></td>
+                        </tr>
+                        <tr>
+                            <td>SMFPRMxx</td>
+                            <td><p>Verify that type 37 (hardware monitor), type 38 (authorization, task resource utilization, and command resource utilization), and type 39 (session monitor) SMF records are set up to be collected.</p>
+                            <p>The SMF 38 subtype 4 record is written on an interval. Set the SMF interval value, and if desired, the SMF synchronization value.</p>
+                            <p>As of V5R4, if you plan to use the CNMSMF3E sample as an IEFACTRT exit routine, verify that type 30 SMF records are set up to be collected and that the EXITS operand of the SYS specification includes the IEFACTRT exit.</p>
+                            <p><b>Note:</b> Use of the supervisor call instruction (SVC) number is no longer supported in the NetView program. If you were using an SVC number, delete the following statement:</p>
+                            <div class="d3">LOGSVC nnn</div>
+                            <p>The corresponding SVC can be deleted from LPALIB if you are no longer running a previous release of the NetView program.</p>
+                            </td>
+                        </tr>
+
+                     </table>
+                     <p class="a">Table 9 on page 12 lists the data spaces that are created by various NetView address spaces. If you limit the size of your data spaces in your installation with the IEFUSI exit, adjustments might be necessary when activating the functions listed in Table 9 on page 12.</p>
+                     <table class="a t1" border="1px">
+                        <tr>
+                            <td colspan="2"><em>Table 9. Data spaces created by the NetView program</em></td>
+                        </tr>
+                        <tr>
+                            <td><b>Address Space</b></td>
+                            <td><b>Data Spaces Created</b></td>
+                        </tr>
+                        <tr>
+                            <td>Master Scheduler</td>
+                            <td>
+                                <p>As of V6R1, subsystem initialization for the NetView program creates a data space to contain Canzlog data. This data space is, by default, defined with 2 GB of virtual storage, which can significantly impact real and auxiliary storage requirements. For more information about defining this data space, see the Installation: Getting Started manual.</p>
+                                <b>Usage Notes:</b>
+                                <ul>
+                                    <li><b>	Warning:</b> Proper planning for real and auxiliary storage must be performed before enabling the Canzlog data space, as system slowdown and hangs can occur with insufficient storage.</li>
+                                    <li>•	As of V6R2M1, with APARs OA55071 and OA55074, the active Canzlog data space size can be significantly reduced. For more information, see the <i>Installation: Getting Started.</i></li>
+                                </ul>
+                            </td>
+                        </tr>
+                     </table><br>
+                     <table class="a t1" border="1px">
+                        <tr>
+                            <td colspan="2"><em>Table 9. Data spaces created by the NetView program (continued)</em></td>
+                        </tr>
+                        <tr>
+                            <td><b>Address Space</b></td>
+                            <td><b>Data Spaces Created</b></td>
+                        </tr>
+                        <tr>
+                            <td>NetView</td>
+                            <td>
+                                <ul>
+                                    <li>The NetView program creates an internal trace data space at initialization that is managed through the TRSIZE parameter in the CNMPROC startup procedure.</li>
+                               <li>	As of V6R3, the Canzlog archiving function creates data spaces that are used for browsing archived Canzlog data. The number of data spaces that are created is limited by the specification on the ARCHIVE.BROWSE.DATASPACES or ARCHIVE.BROWSE.MAXDSPSIZE statement in the CNMSTYLE member. The data space(s) themselves will be created as necessary to accommodate usage needs, and will continue to be created until the number reaches the defined limit.</li>
+                               <li>	As of V6R3, if LOGSMF is enabled in Command Statistics function, a data space is created to store Command Statistics data before being written into SMF. The size of the data space is specified by CMDMON.INIT.SMFDSSIZE statement in the CNMSTYLE member.</li>
+                               <li>	As of V6R3, TCP/IP connection security (CONNSEC) creates a data space for each TCP/IP stack on your system.</li>
+                               <li>	As of V5R4, the OSA packet trace (OPKT) function creates a data space for each TCP/IP stack on your system.</li>
+                               <li>	As of V5R4, if the DISCOVERY tower is enabled in the CNMSTYLE member, the real-time SMF data network management interface (SYSTCPSM) creates a data space for each TCP/IP stack on your system.</li>
+                               <li>	As of V5R2, TCP/IP connection management (TCPCONN) creates a data space for each TCP/IP stack on your system.</li>
+                               <li>	As of V5R2 the IP packet trace (PKTS) function creates a data space for trace data.</li>
+                            <p><b>Usage note:</b> In V6R2, the multi-trace function was added. With this function, each instance of a packet trace uses its own data space. In addition there is a global trace data space. This yields a maximum of 33 data spaces for packet trace data.</p>    
+                            </ul>
+                                
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>RODM</td>
+                            <td>RODM creates and uses 3 data spaces. RODM allocates a 2 gigabyte data space at initialization.</td>
+                        </tr>
+                        <tr>
+                            <td>Z NetView<br> Enterprise<br> Management<br> Agent</td>
+                            <td>Z NetView Enterprise Management Agent	As of V5R3, the NetView agent creates a data space for each NetView program with which it communicates and a second data space is created if the value of the NACMD.PERSIST statement in the CNMSTYLE member is greater than zero.</td>
+                        </tr>
+                     </table>
+                     <p class="a">The initialization members that use system symbols are listed in Table 10 on page 13:</p>
+                     <table class="a t1" border="1px">
+                        <tr>
+                            <td colspan="5"><em>Table 10. System Symbol Usage by Initialization Members</em></td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2"><b>Member</b></td>
+                            <td rowspan="2"><b>Task</b></td>
+                            <td><b> TCP/IP NAME</b></td>
+                            <td><b>RODM NAME</b></td>
+                            <td><b>NETID</b></td>
+                        </tr>
+                        <tr>
+                            <td><b>&CNMTCPN</b></td>
+                            <td><b>&CNMRODM</b></td>
+                            <td><b>&CNMNETID</b></td>
+                        </tr>
+                        <tr>
+                            <td>CNMSTYLE</td>
+                            <td>NetView initialization</td>
+                            <td>x</td>
+                            <td>x</td>
+                            <td>x</td>
+                        </tr>
+                        <tr>
+                            <td>DUIGINIT</td>
+                            <td>GMFHS (Graphics)</td>
+                            <td>&nbsp;</td>
+                            <td>x</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>FLBSYSD</td>
+                            <td>SNA Topology manager</td>
+                            <td>&nbsp;</td>
+                            <td>x</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td colspan="5"><p><b>Note:</b> After you run job CNMSJBUP (see Table 12 on page 16), you can use sample CNMSJM12 in data set NETVIEW.V6R3USER.INSTALL as an alternate method to do symbol substitution. CNMSJM12 replaces system symbols in NetView members.</p></td>
+                        </tr>
+                     </table>
+                     <p class="a">Additional considerations include:</p>
+                     <ul class="a">
+                        <li>The NetView V6R3 program requires access to the REXX runtime library or the REXX alternate library.</li>
+                        <li>One of the most powerful features of the NetView program is the ability to run REXX code in the NetView environment. Many NetView components and base NetView functions exercise code that has been written in REXX. The NetView program also contains several parts that make use of the Data REXX function. Use the Data REXX function to include REXX instructions and functions in data files. To initialize the NetView program, you might need to adjust the maximum number of language processor environments defined by TSO that the system can initialize for the NetView address space.</li>
+                        <li>If you are going to run Z System Automation and the AON component of the NetView program in the same address space, enable the workload manager. For more information, refer to<i> IBM Z NetView Installation: <b>Configuring</b> Additional Components</i>.</li>
+                        <li>SAF access data for CNMCSSIR is no longer required.</li>
+                     </ul>
+                     <b class="h1">
+                        Preparing UNIX System Services
+                        </b>
+                        <div class="d2"></div><br>
+                        <p class="a">The following steps are required to update the UNIX System Services for NetView V6R3. When you upgrade your MVS NetView components to NetView V6R3, also upgrade your UNIX System Services NetView components to V6R3.</p>
+                        <b class="a">Note:</b>
+                        <ol class="a" type="1">
+                            <li>	Because of the way the NetView program accesses UNIX System Services configuration files, you can only run one version of the configuration files with the NetView program.</li>
+                        <li>If you are running multiple NetView programs under one LPAR, you can only access the CNMEUNIX program from one of these NetView programs. This is because the PPI receiver is specified in the CNMEUNIX program.</li>
+                        </ol>
+                        <p class="a">These are the same basic steps required for a new installation. For additional information about these steps, refer to<i> IBM Z NetView Installation:<b> Configuring</b> Additional Components.</i></p>
+                        <ol class="a" type="1">
+                            <li>Update member BPXPRMxx in SYS1.PARMLIB to specify UNIX System Services parameters.</li>
+                            <li>	The CNMSJ032 job creates directories in your z/OS UNIX System Services environment, copies application files, and MIB source files. Review the comments in the CNMSJ032 job profile and make any changes before running this job.</li>
+                            <li>	If necessary, update the z/OS UNIX System Services environment variables.</li>
+                            <li>	Review your existing RACF® definitions. For more information, refer to the<i> IBM Z NetView Security Reference.</i></li>
+                            <li>	Enable the UNIX command server.</li>
+                            <li>	Review the Event/Automation Service startup procedure IHSAEVNT and the configuration files.</li>
+                            <li>	After installation, review the correlation engine CNMSJZCE start-up job.</li>
+                        </ol>
+                        <p class="a">The NetView program uses hierarchical file system (HFS) or zSeries file system (zFS) data sets relative to z/OS UNIX system services as described in the NetView program directory. The NetView program allocates the following directories</p>
+                        <div class=" a d4">./usr/lpp/netview/v6r3/bin<br>
+                            ./usr/lpp/netview/v6r3/mibs<br>
+                            ./usr/lpp/netview/v6r3/lib<br>
+                            ./usr/lpp/netview/v6r3/samples<br>
+                            ./usr/lpp/netview/v6r3/samples/at-tls<br>
+                            ./usr/lpp/netview/v6r3/samples/properties<br>
+                            ./usr/lpp/netview/v6r3/www<br>
+                            ./usr/lpp/netview/v6r3/www/img<br>
+                            ./usr/lpp/netview/v6r3/resetsrvr<br>
+                            ./usr/lpp/netview/v6r3/resetsrvr/samples<br>
+                            ./usr/lpp/netview/v6r3/resetsrvr/samples/zowe<br>
+                            ./usr/lpp/netview/v6r3/resetsrvr/samples/zowe/NetViewSample
+                            </div>
+                            <p class="a">When you have completed your configuration, NetView V6R3 USS uses the directories in Table 11 on page 15:</p>
+                            <table class="a t1" border="1px">
+                                <tr>
+                                    <td colspan="2">Table 11. Directory structure used by UNIX System Services</td>
+                                </tr>
+                                <tr>
+                                    <td><b>Directory</b></td>
+                                    <td><b>Description</b></td>
+                                </tr>
+                                <tr>
+                                    <td>/usr/lpp/netview/v6r3/bin</td>
+                                    <td>Executable files</td>
+                                </tr>
+                                <tr>
+                                    <td>/usr/lpp/netview/v6r3/mibs</td>
+                                    <td>/usr/lpp/netview/v6r3/mibs	Management Information Base (MIB) files</td>
+                                </tr>
+                                <tr>
+                                    <td>/etc/netview/mibs</td>
+                                    <td>For user-defined MIBs and MIBs not included with<br> NetView V6.3.0</td>
+                                </tr>
+                                <tr>
+                                    <td>/etc/netview/v6r3</td>
+                                    <td>Application files</td>
+                                </tr>
+                                <tr>
+                                    <td>/etc/netview/v6r3/properties</td>
+                                    <td>Application files</td>
+                                </tr>
+                                <tr>
+                                    <td>/tmp/netview/v6r3</td>
+                                    <td>Application files</td>
+                                </tr>
+                                <tr>
+                                    <td>/tmp/netview/v6r3/logs</td>
+                                    <td>Application files</td>
+                                </tr>
+                                <tr>
+                                    <td>/var/netview/v6r3/<b>rulefiles</b></td>
+                                    <td>Application files</td>
+                                </tr>
+                                <tr>
+                                    <td>./usr/lpp/netview/v6r3/resetsrvr</td>
+                                    <td>REST Server subdirectory</td>
+                                </tr>
+                                <tr>
+                                    <td>./usr/lpp/netview/v6r3/resetsrvr/samples	</td>
+                                    <td>REST Server subdirectory</td>
+                                </tr>
+                                <tr>
+                                    <td>./usr/lpp/netview/v6r3/resetsrvr/samples/zowe</td>
+                                    <td>REST Server subdirectory</td>
+                                </tr>
+                                <tr>
+                                    <td>./usr/lpp/netview/v6r3/resetsrvr/samples/zowe/<br> NetViewSample</td>
+                                    <td>REST Server subdirectory</td>
+                                </tr>
+                            </table><br>
+                            <p class="a">The NetView MIB collection can be found in the /usr/lpp/netview/v6r3/mibs directory. As provided, the NetView program looks for user-defined MIBs in the /etc/netview/mibs/ directory. If you place your user-defined MIBs in another location, you must update the COMMON.CNMSNMP.MIBPATH statement in the CNMSTUSR or CxxSTGEN member to reflect the locations of your MIBs. For more information about the MIB collection that is provided by the NetView program, refer to the README.mibs file in the /usr/lpp/netview/v6r3/mibs/ directory.</p>
+                            <p class="a"><b>Note:</b> If, as part of your NetView migration, you upgraded the z/OS system to V1.12 or later, make sure that you run the CNMSJ032 sample to copy the MIB files to /etc/netview/mibs. For additional information about copying the MIB files, see the comments in the CNMSJ032 sample.</p>
+                           <b class="h1">Preparing the NetView Program</b>
+                           <div class="d2"></div>
+                           <p class="a">Consider the steps in Table 12 on page 16 when migrating to NetView V6R3. These are the same basic steps required for a new installation. Noted in these steps are changes that affect migrating users. For additional information, refer to<i> IBM Z NetView Installation: Getting Started.</i></p>
+                           <p class="a"><b>Warning:</b> After running CNMSJBUP, all of the NetView installation JCL and related members can be found in data set NETVIEW.V6R3USER.INSTALL. Only work from this data set. Continuing to work from NETVIEW.V6R3M0.CNMSAMP can cause unexpected results when you are running the installation JCL described in Table 12 on page 16</p>
+                            <table class="a t1" border="1px">
+                                <tr>
+                                    <td colspan="2"><em>Table 12. Installation JCL</em></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Member</b></td>
+                                    <td><b>Description</b></td>
+
+                                </tr>
+                                <tr>
+                                    <td >Description</td>
+                                    <td>Copies the installation JCL members in NETVIEW.V6R3M0.CNMSAMP into data set NETVIEW.V6R3USER.INSTALL.
+                                        <p><b>Note: </b> entire NetView samples library is not copied. Only a subset of the members that might need modification in data set NETVIEW.V6R3M0.CNMSAMP is copied.</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><p align="margin-left">CNMSJ001</p></td>
+                                    <td>Creates an ICF catalog and defines the ALIAS name NETVIEW as the high-level qualifier for the NetView data sets. Run this job if you did not define this alias name during the NetView program directory installation and you plan to use this high-level<b> qualifier.</b></td>
+                                </tr>
+                                <tr>
+                                    <td>CNMSJ002</td>
+                                    <td><p>Allocates partitioned and sequential data sets.</p>
+                                    <p>Allocate a set of NetView V6R3 user data sets for each NetView domain that you are installing and copy all of your customized members from the user data sets in that domain into these V6R3 data sets.</p>
+                                <b>Note:</b>  
+                                <ol type="1">
+                                    <li>	Review the symbolic variables in the comments supplied in this job. Change the &UNIT and &SER JCL variables to match your installation, if needed.</li>
+                               <li>Change the &DOMAIN JCL variable to match the NetView domain name you are installing.</li>
+                            <li>As of V1R4, the following data sets are no longer needed:</li> 
+                            <ul>
+                                <li>NETVIEW.VxRxUSER.&domain.USER.PROFILE</li>
+                                <li>	NETVIEW.VxRxUSER.&<i>domain</i>.VIEW.OUTPUT</li>
+                            </ul> 
+                           
+                            <li>As of V5R1, the SEZLPNLU user data set is no longer used. Instead, use NETVIEW.V6R3USER.&domain.CNMPNL1. If you previously customized panels in the SEZLPNLU data set, migrate those changes to the panels in CNMPNL1.</li>  
+                           <li>As of V5R2, a user NETVIEW.VxRxUSER.&domain.CNMCLST data set is provided to use for customized command lists and REXX Execs.</li>
+                          <li>As of V5R4, the following sequential data sets are required to collect distributed DVIPA statistics:</li>
+                          <ul>
+                            <li>NETVIEW.CNM01.CNMDVIPP</li>
+                            <li>NETVIEW.CNM01.CNMDVIPS</li>
+                            <b>Usage notes:</b>
+                            <li>Use the default (or larger) size allocations for these data sets so that the default number of records specified by the DVIPA.STATS.Pri.MAXR and DVIPA.STATS.Sec.MAXR statements in the CNMSTYLE member do not cause the data sets to reach capacity and lose data.</li>
+                        <li>If you use the CNMSJ002 job to allocate new CNMDVIPP and CNMDVIPS data sets to a system that already has a previous NetView program installed, the data sets are not cataloged.</li> 
+                        </ul>
+                        </ol>  
+                                </td>
+                                </tr>
+                            </table>
+                            <br>
+                            <table class="a t1" border="1px">
+                                <tr>
+                                    <td colspan="2">Table 12. Installation JCL (continued)</td>
+                                </tr>
+                                <tr>
+                                    <td>Member</td>
+                                    <td>Description</td>
+                                </tr>
+                                <tr>
+                                    <td>CNMSJ000</td>
+                                    <td>Changes the default NetView domain (CNM01), subarea (01), and the VSAM allocate volume (CPDLB2) in the NetView installation JCL and NetView samples. Changed samples are placed in the following data sets:
+                                        <ul>
+                                            <li>NETVIEW.V6R3USER.&domain.DSIPARM</li>
+                                            <li>	NETVIEW.V6R3USER.INSTALL</li>
+                                            <li>NETVIEW.V6R3USER.&domain.VTAMLST</li>
+                                        </ul>
+                                        <p>If you specify a value of NOVOLSER for a VSAM volume symbol (V1, V2, and so on) in the CNMSJ000 member, this will cause the volume parameter to be removed from the IDCAMS member that allocates VSAM clusters for the associated component.</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>CNMSJ003</td>
+                                    <td><p>Copies NetView procedures to PROCLIB, AON members to the user DSIPARM and user CNMPNL1 data sets, and sample network VTAM members to the user VTAMLST data set.</p>
+                                    <b>Note:</b>
+                                    <ol type="1">
+                                        <li>	Review CNMSJI10 and make any changes before running CNMSJ003 to ensure that you do not write over existing members in your PROCLIB. Then, uncomment the //PDS2 EXEC statement in CNMSJ003</li>
+                                        <li>	As of V5R4, the copy steps for the NetView agent are no longer required.</li>
+                                    </ol>
+                                    </td>
+                                </tr>
+                            </table><br>
+                            <table class="a t1" border="1px">
+                                <tr>
+                                    <td colspan="2">Table 12. Installation JCL (continued)</td>
+                                </tr>
+                                <tr>
+                                    <td>CNMSJ004</td>
+                                    <td>Allocates VSAM clusters.<br>
+                                        Consider allocating new VSAM clusters for NetView V6R3.
+                                        <b>Note:</b>
+                                        <ol class="a" type="1">
+                                            <li>If necessary, redefine the NetView log, including passwords and switching between primary and secondary logs.</li>
+                                        <li>For more information about allocating VSAM clusters for RODM, refer to the
+                                           <i> IBM Z NetView Installation: <b>Configuring</b> Graphical Components.</i>
+                                            </li>
+                                            <li>	As of V5R2, the DSITCONP and DSITCONS VSAM clusters are new for TCP/IP connection management.</li>
+                                        <li>As of V5R2, the VSAM clusters for AON are allocated by default in CNMSJ004.</li>
+                                    <li>	As of V6R1, the FKXPKTS VSAM cluster is new for the Saved Packet Trace function.</li>    
+                                     <li>	If you are migrating from V5R2 or V5R3, allocate new DSITCONP and DSITCONS VSAM clusters because the allocation parameters for these have changed
+                                        <p><b>Note:</b> If you want to continue using your existing DSITCONP and DSITCONS VSAM clusters that were allocated with a CISZ of 22528, make sure that you include buffers of this size in the VSAM buffer DATA pool defined in the DSIZVLSR module.</p>
+                                     </li> 
+                                     <li>	The default DSIZVLSR module is based on using 3390 DASD (using ICF catalogs). Make sure that the copy of the DSIZVLSR module that you are using is compatible with your cluster definitions. If you change the default control interval size (CISZ) values or the default number of buffers for each buffer size, use the CNMSJM01 sample job to assemble and link edit a copy of the DSIZVLSR module into a user library. For information about the DSIZVLSR module, see the IBM Z NetView Tuning Guide. For information about running the CNMSJM01 sample, see the<i> IBM Z NetView Installation: <b>Configuring </b> Components.</i></li>   
+                               <li>	As of V6R2M1 with APAR OA47872, the Save/Restore (DSISVRT) VSAM cluster must be reallocated. You can use sample job CNMSJM15 to allocate a new DSISVRT cluster, copy the data from your existing DSIVSRT cluster to the new cluster, and rename the new DSISVRT cluster to be used with the NetView program. This change is required to support the increased global variable name and value lengths</li>
+                                    </ol>
+                                        </td>
+                                </tr>
+                                <tr>
+                                    <td>CNMSJ033</td>
+                                    <td>Starting with V6R1, use the CNMSJ033 job to load an initialization record into the Saved Packet Trace database that was allocated using the CNMSJ004 job.</td>
+                                </tr>
+                            </table>
+                            <p class="a">Additional installation considerations include:</p>
+                            <ol class="a" type="1">
+                                <li>	Reassemble or recompile any user-written NetView code.
+                                    <p>
+                                        If you have written applications that run with the NetView program, recompile your code with the SCNMMAC1 data set. Refer to the<i> IBM Z NetView Customization Guide and IBM Z NetView Programming: </i> for more information.
+                                    </p>
+                                </li>
+                                <li>The MESSAGE category is no longer supported. Message forwarding is done by users or application programs such as AON. For migration, previously included NetView message forwarding samples will continue to work. Some of these samples rely on the following common global variables to be set during NetView initialization:<br><br>
+                                    <b>&DIALTIME</b><br>
+                                    <p>Maximum time that the alert forwarding command lists processing the VARY NET,DIAL command<br> waits for a response from the command before continuing to process data.</p><br><br>
+                                <b>&WAITTIME</b>
+                                <p>Maximum time that the alert forwarding command lists processing commands other than<br> VARY NET,DIAL waits for a response from the command before continuing to process data.</p><br><br>
+                                <b>&RETRYTIM</b>
+                                <p>Time that the message-forwarding command lists wait between link station dial attempts if the<br> dial fails because the link station is in a state that is not valid.</p><br><br>
+                                <b>&LNK<i>domid</i></b>
+                                <p>Link station name associated with the remote domain (domid). You can set this variable using the<br> SETADIAL command.</p><br><br>
+                                <b>&CDRM<i>domid</i></b>
+                                <p>CDRM name associated with the remote domain (domid). You can set this variable using the<br> SETADIAL command.</p><br>
+                                <p>The following command can set the &LNKdomid and the &CDRMdomid variables. Code one for each<br> host (remote domain) with which this host communicates over a switched line:</p>
+                                <div class="d3"><i>SETADIAL domid linkid cdrmid</i></div>
+                                <b><i>Where:</i></b><br><br>
+                                <b><i>domid</i></b>
+                                <p>&nbsp;&nbsp;Is the 1–5 character name of the remote domain that communicates with this host over a switched <br>line.</p><br>
+                                <b><i>linkid</i></b>
+                                <p>&nbsp;&nbsp;Is the 1–8 character cross-domain link station name associated with the remote domain</p><br>
+                                <b><i>cdrmid</i></b>
+                                <p>&nbsp;&nbsp;Is the 1–8 character cross-domain CDRM name associated with the remote domain</p>
+
+
+                                
+                                
+                                
+                                
+                                
+                                </li>
+                                <li>After the NetView program is distributed throughout the network, gradually migrate the nodes to use the RMTCMD command and LU 6.2 sessions.
+                                    <p>In a multiple CMC or multiple focal-point enterprise, update all CMCs or focal points to use the RMTCMD command and LU 6.2 sessions before you migrate these nodes to use extended multiple console support (EMCS) consoles. Also, in networks that use distributed automation, update all NetView programs that exchange messages to use the RMTCMD command and LU 6.2 sessions before you migrate the programs to use EMCS consoles. In both cases, if possible, complete the migration to the RMTCMD command and LU 6.2 sessions before you use EMCS consoles, to avoid losing MDB data such as highlighting and some DOM information.</p>
+                                </li>
+                                <li>	The VIEW command processor is used to display full-screen panels from user-written programs. The VIEW command attempts to retrieve the value for any variables defined on a panel from the local dictionary of the calling procedure. If you have existing panels that need updates from global variables, you might have to isolate the VIEW call from local variables. You can do this with the REXX DROP or PROCEDURE statements or by using PIPE VAR. For more information, refer to the IBM Z <i>NetView Customization Guide</i></li>
+                            </ol>
+                            <b class="h1">Preparing Graphical NetView Components</b>
+                            <div class="d2"></div>
+                            <p class="a">
+                                The graphics components are activated with TOWER statements in the CNMSTYLE member. Copy the TOWER statement to the CNMSTUSR or CxxSTGEN member and remove the asterisk (*) from the components that you plan to use, including Graphics. Optionally, you can use a MODIFY.TOWER statement to add the graphics components.
+                            </p>
+                            <p class="a">Some changes to members included in the CNMSTYLE member (using the %INCLUDE statement) require a restart of the NetView program for them to take effect. For this reason, make all CNMSTYLE member updates at the same time for the graphics functions that you plan to use as part of this installation.</p>
+                            <p class="a">The steps that follow are required to update the graphics functions for the NetView V6R3 program:</p>
+                            <ul class="a">
+                                <li><u>	“RODM and GMFHS” on page 20</u></li>
+                                <li><u>	“NetView Management Console” on page 20</u></li>
+                                <li>	<u>“SNA Topology Manager” on page 20</u></li>
+                                <li><u>	“MultiSystem Manager” on page 21</u></li>
+                            </ul>
+                            <p class="a">For additional information about these steps, refer to <i>IBM Z NetView Installation: <b>Configuring</b> Graphical Components.</i></p>
+                            <b class="h2">RODM and GMFHS</b>
+                            <p class="a">Consider the following items in migrating RODM and GMFHS functions to the current release:</p>
+                            <ol class="a" type="1">
+                                <li>NetView VSAM clusters for the RODM log and checkpoint databases were defined when you ran sample job CNMSJ004 (see <u>Table 12 on page 16)</u>.
+                                <p><b>Note:</b> Consider increasing the size of the RODM checkpoint data sets if you use the checkpoint function and the estimated number of objects that you expect to store in RODM exceeds the previous maximum supported number of approximately 524,000 objects</p>
+                              <br><br>  </li>
+                            <li>	Update the RODM start procedure EKGXRODM to match your environment.</li>
+                            <li>	Update the RODM definition member EKGCUST.</li>
+                            <li>	Review the initialization values for the RODM DSIQTSK task in DSIQTSKI.</li>
+                            <li>	Update the GMFHS start procedure CNMGMFHS to match your environment.</li>
+                            <li>	Update the GMFHS definition statements in DUIGINIT as needed.</li>
+                            <li>	Review the initialization values for the status focal point in members DUIISFP, DUIFPMEM, and<br> DUIIGHB.</li>
+                            <li>	Use one of the following procedures to confirm that the NetView data model is current:
+                                <ul>
+                                    <li>Update the CNMSJH12 sample job to refer to the data sets that contain data model definitions for the features that you are using. Then restart the RODM address space with the cold start option and run the CNMSJH12 sample job to load the data model into RODM.</li>
+                                    <li>	Update the RODM start procedure to refer to the data sets that contain data model definitions for the features that you are using. Then restart the RODM address space with the cold start option and specify the INIT method (for example, EKGLISLM) to load the data model into RODM during initialization.</li>
+                                </ul>
+                            </li>
+                            <li>	Optional: After loading the current data model into RODM, checkpoint the RODM data model so that the current NetView data model is used when the RODM address space is started with the warm start option. You can create the RODM checkpoint using the following command:</li>
+                              <div class="d3" >mvs f ekgxrodm,chkpt</div>
+                            </ol>
+                            <b class="h2">NetView Management Console</b>
+                            <p class="a">Consider the following items in migrating the NetView management console:</p>
+                            <ul class="a">
+                                
+                                <li>	Review your NetView management console topology server configuration.</li>
+                                <li>	Review your NetView management console topology console configurations.</li>
+                            </ul>
+                           <b class="h2">SNA Topology Manager</b>
+                           <p class="a">To migrate the SNA Topology manager, review the following initialization files:</p>
+                           <ul class="a">
+                            <li>	FLBEXV</li>
+                               <li> 	FLBOSIDS</li>
+                                <li>	FLBSRT</li>
+                           <li>FLBSYSD
+                                </li>
+                           </ul>
+                           <b class="h2">MultiSystem Manager</b>
+                           <p class="a">To migrate the MultiSystem Manager:</p>
+                           <ol class="a" type="1">
+                            <li>1.	To enable the MultiSystem Manager aents, locate the following statement in the CNMSTYLE member:</li>
+                            <div class="d3">TOWER.MSM = ITNM OPN</div>
+                               <p> Agent names preceded by an asterisk (*) are disabled. Copy the TOWER.MSM statement to the CNMSTUSR or CxxSTGEN member and remove or add asterisks as necessary to enable the agent that you plan to use. Optionally, you can use MODIFY.TOWER statements to enable the MSM tower and agent subtowers. When the TOWER.MSM statement is enabled, the %INCLUDE statement for FLCSOPF (used for operator profiles) is also enabled.</p>
+                                <li>	Upgrade your MultiSystem Manager agent to the current level.</li>
+                                <li>	Review your MultiSystem Manager initialization file (provided as FLCSAINP before NetView V5R1).</li>
+                                <li>Allocate additional NetView DSRBs if necessary.</li>
+                                <li>	Review the number of REXX environments specified. For more information, refer to the IBM Z NetView Installation: Configuring Additional Components.</li>
+                                <li>Review the settings for the NetView RATE and AUTORATE statements, and for the RUNCMD timeout value.</li>
+                                <li>Review the setup for the NetView cross-domain environment.
+                                </li>
+                           </ol>
+                           <b class="h2">Usage Note:</b>
+                           <p class="a">If you have the MSM ITNM subtower enabled, comment it out. The MutliSystem IBM Tivoli Network manager agent is no longer supported.</p>
+                           <b class="h1">Preparing the AON Component</b>
+                           <div class="d2"></div>
+                           <p class="a">Make the following changes for AON:</p>
+                           <ul class="a">
+                            <li>	Copy the TOWER CNMSTYLE statement to the CNMSTUSR or CxxSTGEN member and remove the asterisk (*) preceding the AON function. Optionally, you can use a MODIFY.TOWER statement to enable the AON function. This enables all of the AON components.</li>
+                                <li>On the subtower statement, add asterisks preceding any of the AON functions that you do not plan to use:</li>
+                                <div class="d3">TOWER.AON = SNA TCP</div>
+                               <p> For IP functions, the AON TCP subtower and IPMGT towers provide equivalent function, but are mutually exclusive.</p>
+                                <li>Optional: Define STATMON statements for AON/SNA.</li>
+                                <li>	Move any TCP390 statements from AON configuration members EZLCFG01, FKXCFG01, and FKVCFG01 into the NetView base policy member CNMPOLCY.</li>
+                                <li>	Update the AON control file.</li>
+                                <li>Review the AON policy definitions.</li>
+                                <li>Enable minimal AON functions if you are not using full AON automation.
+                                </li>
+                           </ul>
+                           <b class="h1">Additional Considerations for Migrating DSIPARM and DSICLD Members</b>
+                           <div class="d2"></div>
+                           <p class="a">If your existing DSIPARM and DSICLD members contain changes that you added, you can add the changes for the new release to your existing members, instead of using the copies created during NetView installation. For more information, see one of the following topics:</p>
+                           <ul class="a">
+                            <li><u>Chapter 3, “Migrating from Tivoli NetView for OS/390 V1R4,” on page 23</u></li>
+                                <li>	<u>Chapter 4, “Migrating from Tivoli NetView for z/OS V6R1,” on page 63</u></li>
+                                <li><u>Chapter 5, “Migrating from Tivoli NetView for z/OS V6R2,” on page 73</u></li>
+                                <li><u>	Chapter 6, “Migrating from Tivoli NetView for z/OS V6R2M1,” on page 81</u>
+                                </li>
+                           </ul>
+                           <p class="a">NetView support for the GDPS Continuous Availability solution was moved to the IBM Z NetView for Continuous Availability Configuring and Using the GDPS Continuous Availability Solution product. For migration information, see IBM Z NetView for Continuous Availability <i><b>Configuring </b> Using the GDPS Continuous Availability Solution Configuring and Using the GDPS Continuous Availability Solution.</i></p>
+                           <p class="a">After you make any necessary changes, continue with <u>Chapter 7, “Getting Ready to Start NetView,” on page 87.</u></p>
+</body>
+</html>
